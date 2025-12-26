@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 from langgraph.checkpoint.sqlite import SqliteSaver
 import sqlite3
 import os
+import streamlit as st
 
 # -------------------------
 # Load environment variables
