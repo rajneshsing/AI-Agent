@@ -15,13 +15,13 @@ fastapi==0.118.0
 filetype==1.2.0
 gitdb==4.0.12
 GitPython==3.1.45
-google-ai-generativelanguage>=0.6.15,<0.8.0
-google-generativeai==0.8.5
+google-ai-generativelanguage
+google-generativeai
+langchain-google-genai
 google-api-core==2.25.2
 google-api-python-client==2.184.0
 google-auth==2.41.1
 google-auth-httplib2==0.2.0
-google-generativeai==0.8.5
 googleapis-common-protos==1.70.0
 greenlet==3.2.4
 groq==0.37.1
@@ -39,7 +39,6 @@ jsonschema==4.25.1
 jsonschema-specifications==2025.9.1
 langchain>=1.0.0,<2.0.0
 langchain-core>=1.0.0,<2.0.0
-langchain-google-genai==2.1.12
 langchain-groq==1.1.1
 langchain-text-splitters==0.3.11
 langgraph==0.6.10
