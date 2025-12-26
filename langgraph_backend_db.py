@@ -1,58 +1,55 @@
 from langgraph.graph import StateGraph, START, END
-from langchain_core.messages import AnyMessage, HumanMessage
+from langchain_core.messages import AnyMessage
 from typing import TypedDict, Annotated
 from langgraph.graph.message import add_messages
-from langchain.chat_models import init_chat_model
-from dotenv import load_dotenv
 from langgraph.checkpoint.sqlite import SqliteSaver
 import sqlite3
-import os
 import streamlit as st
 
 # -------------------------
-# Load environment variables
-# -------------------------
-load_dotenv()
-
-# ✅ Correct env var for Groq
-#os.environ["GROQ_API_KEY"] = os.getenv("GROQ_API_KEY")
-
-# -------------------------
-# State definition
+# State definition (same as before)
 # -------------------------
 class ChatState(TypedDict):
     messages: Annotated[list[AnyMessage], add_messages]
 
 # -------------------------
-# Initialize Groq LLM (FIXED)
+# Lazy LLM initialization (FIXED: safe for Streamlit Cloud)
 # -------------------------
-llm = init_chat_model(
-    model="llama-3.1-8b-instant",
-    model_provider="groq",   # ✅ MUST be model_provider
-    temperature=0.7,
-    api_key=st.secrets["GROQ_API_KEY"]
-)
+def get_llm():
+    # Access secret only when function is called (not at import time)
+    api_key = st.secrets["GROQ_API_KEY"]  # Will raise clear error if missing
+    
+    from langchain.chat_models import init_chat_model
+    return init_chat_model(
+        model="llama-3.1-8b-instant",
+        model_provider="groq",
+        temperature=0.7,
+        api_key=api_key
+    )
 
 # -------------------------
-# Chat node
+# Chat node (uses LLM only when needed)
 # -------------------------
 def chat_node(state: ChatState):
-    messages = state["messages"]
-    response = llm.invoke(messages)
+    llm = get_llm()  # Initialized here, safe
+    response = llm.invoke(state["messages"])
     return {"messages": [response]}
 
 # -------------------------
-# Checkpointer (SQLite)
+# SQLite checkpointer (simple, same as before)
 # -------------------------
+# Create connection once (Streamlit caches this automatically when used in graph)
 conn = sqlite3.connect("chatbot.db", check_same_thread=False)
-checkpointer = SqliteSaver(conn=conn)
+memory = SqliteSaver(conn)
 
 # -------------------------
-# Build graph
+# Build and compile the graph (very similar to original)
 # -------------------------
 builder = StateGraph(ChatState)
+
 builder.add_node("chat_node", chat_node)
 builder.add_edge(START, "chat_node")
 builder.add_edge("chat_node", END)
 
-chatbot = builder.compile(checkpointer=checkpointer)
+# Compile with memory
+chatbot = builder.compile(checkpointer=memory)
