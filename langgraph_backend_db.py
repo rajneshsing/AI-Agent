@@ -14,7 +14,7 @@ import os
 load_dotenv()
 
 # ✅ Correct env var for Groq
-os.environ["GROQ_API_KEY"] = os.getenv("GROQ_API_KEY")
+#os.environ["GROQ_API_KEY"] = os.getenv("GROQ_API_KEY")
 
 # -------------------------
 # State definition
