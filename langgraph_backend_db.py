@@ -28,7 +28,8 @@ class ChatState(TypedDict):
 llm = init_chat_model(
     model="llama-3.1-8b-instant",
     model_provider="groq",   # ✅ MUST be model_provider
-    temperature=0.7
+    temperature=0.7,
+    api_key=st.secrets["GROQ_API_KEY"]
 )
 
 # -------------------------
